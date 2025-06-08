@@ -8,39 +8,41 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(uuid())
-  email       String   @unique
-  password    String
-  name        String
-  profilePic  String?
-  contact     String?
-  role        Role     @default(CUSTOMER)
-  projects    Project[]    @relation("CustomerProjects")
-  assignments Assignment[] @relation("UserAssignments")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                String     @id @default(uuid())
+  email             String     @unique
+  password          String
+  name              String
+  profilePic        String?
+  contact           String?
+  role              Role       @default(CUSTOMER)
+  projects          Project[]      @relation("CustomerProjects")
+  assignments       Assignment[]   @relation("UserAssignments")
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   // Role-specific fields
-  skills        String[] // Developer
-  portfolioUrl  String?  // Developer
-  expertiseArea String?  // Consultant
-  reviews       Review[] // Consultant
-  paymentHistory Payment[] // Customer
+  skills            String[]   // Developer
+  portfolioUrl      String?    // Developer
+  expertiseArea     String?    // Consultant
+
+  consultantReviews Review[]   @relation("ConsultantReviews")
+  reviewerReviews   Review[]   @relation("ReviewerReviews")
+  paymentHistory    Payment[]  // Customer
 
   @@index([role])
 }
 
 model Project {
-  id            String   @id @default(uuid())
+  id            String     @id @default(uuid())
   title         String
   summary       String
   description   String
-  status        String   @default("New")
+  status        String     @default("New")
   techStack     String[]
   budget        Float
   timeline      String
   milestones    Milestone[]
-  customer      User     @relation("CustomerProjects", fields: [customerId], references: [id])
+  customer      User       @relation("CustomerProjects", fields: [customerId], references: [id])
   customerId    String
   assignments   Assignment[]
   files         File[]
@@ -48,71 +50,71 @@ model Project {
   githubRepoUrl String?
   stagingUrl    String?
   messages      Message[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 }
 
 model Assignment {
-  id             String   @id @default(uuid())
-  project        Project  @relation(fields: [projectId], references: [id])
+  id             String     @id @default(uuid())
+  project        Project    @relation(fields: [projectId], references: [id])
   projectId      String
-  developer      User?    @relation("UserAssignments", fields: [developerId], references: [id])
+  developer      User?      @relation("UserAssignments", fields: [developerId], references: [id])
   developerId    String?
-  consultant     User?    @relation(fields: [consultantId], references: [id])
+  consultant     User?      @relation(fields: [consultantId], references: [id])
   consultantId   String?
-  assignedAt     DateTime @default(now())
+  assignedAt     DateTime   @default(now())
 }
 
 model Milestone {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   name      String
   due       DateTime
-  status    String   @default("Pending")
-  project   Project  @relation(fields: [projectId], references: [id])
+  status    String     @default("Pending")
+  project   Project    @relation(fields: [projectId], references: [id])
   projectId String
 }
 
 model Payment {
-  id          String   @id @default(uuid())
+  id          String     @id @default(uuid())
   amount      Float
-  project     Project  @relation(fields: [projectId], references: [id])
+  project     Project    @relation(fields: [projectId], references: [id])
   projectId   String
-  customer    User     @relation(fields: [customerId], references: [id])
+  customer    User       @relation(fields: [customerId], references: [id])
   customerId  String
-  paidAt      DateTime @default(now())
-  status      String   @default("Pending")
+  paidAt      DateTime   @default(now())
+  status      String     @default("Pending")
 }
 
 model File {
-  id        String   @id @default(uuid())
-  url       String
-  name      String
-  project   Project  @relation(fields: [projectId], references: [id])
-  projectId String
-  uploadedBy User    @relation(fields: [uploadedById], references: [id])
+  id          String     @id @default(uuid())
+  url         String
+  name        String
+  project     Project    @relation(fields: [projectId], references: [id])
+  projectId   String
+  uploadedBy  User       @relation(fields: [uploadedById], references: [id])
   uploadedById String
-  createdAt DateTime @default(now())
+  createdAt   DateTime   @default(now())
 }
 
 model Message {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   content   String
-  project   Project  @relation(fields: [projectId], references: [id])
+  project   Project    @relation(fields: [projectId], references: [id])
   projectId String
-  sender    User     @relation(fields: [senderId], references: [id])
+  sender    User       @relation(fields: [senderId], references: [id])
   senderId  String
-  createdAt DateTime @default(now())
+  createdAt DateTime   @default(now())
 }
 
 model Review {
-  id          String   @id @default(uuid())
-  consultant  User     @relation(fields: [consultantId], references: [id])
-  consultantId String
-  reviewer    User     @relation(fields: [reviewerId], references: [id])
-  reviewerId  String
-  rating      Int
-  comment     String
-  createdAt   DateTime @default(now())
+  id            String   @id @default(uuid())
+  consultant    User     @relation("ConsultantReviews", fields: [consultantId], references: [id])
+  consultantId  String
+  reviewer      User     @relation("ReviewerReviews", fields: [reviewerId], references: [id])
+  reviewerId    String
+  rating        Int
+  comment       String
+  createdAt     DateTime @default(now())
 }
 
 enum Role {
