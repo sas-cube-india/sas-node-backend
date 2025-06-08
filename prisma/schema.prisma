@@ -8,17 +8,20 @@ datasource db {
 }
 
 model User {
-  id                String     @id @default(uuid())
-  email             String     @unique
-  password          String
-  name              String
-  profilePic        String?
-  contact           String?
-  role              Role       @default(CUSTOMER)
-  projects          Project[]      @relation("CustomerProjects")
-  assignments       Assignment[]   @relation("UserAssignments")
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  id                   String     @id @default(uuid())
+  email                String     @unique
+  password             String
+  name                 String
+  profilePic           String?
+  contact              String?
+  role                 Role       @default(CUSTOMER)
+  projects             Project[]      @relation("CustomerProjects")
+  assignments          Assignment[]   @relation("UserAssignments")
+  consultantAssignments Assignment[]  @relation("ConsultantAssignments")
+  uploadedFiles        File[]         @relation("UploadedFiles")
+  sentMessages         Message[]      @relation("SentMessages")
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
 
   // Role-specific fields
   skills            String[]   // Developer
@@ -60,7 +63,7 @@ model Assignment {
   projectId      String
   developer      User?      @relation("UserAssignments", fields: [developerId], references: [id])
   developerId    String?
-  consultant     User?      @relation(fields: [consultantId], references: [id])
+  consultant     User?      @relation("ConsultantAssignments", fields: [consultantId], references: [id])
   consultantId   String?
   assignedAt     DateTime   @default(now())
 }
@@ -91,7 +94,7 @@ model File {
   name        String
   project     Project    @relation(fields: [projectId], references: [id])
   projectId   String
-  uploadedBy  User       @relation(fields: [uploadedById], references: [id])
+  uploadedBy  User       @relation("UploadedFiles", fields: [uploadedById], references: [id])
   uploadedById String
   createdAt   DateTime   @default(now())
 }
@@ -101,7 +104,7 @@ model Message {
   content   String
   project   Project    @relation(fields: [projectId], references: [id])
   projectId String
-  sender    User       @relation(fields: [senderId], references: [id])
+  sender    User       @relation("SentMessages", fields: [senderId], references: [id])
   senderId  String
   createdAt DateTime   @default(now())
 }
